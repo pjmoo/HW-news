@@ -21,7 +21,14 @@ public class GitHubNewsPublisher extends AbstractHttpClient implements NewsPubli
         super(GITHUB_API_URL
                 .formatted(System.getenv("GITHUB_REPOSITORY"))
         );
+        String repo = System.getenv("GITHUB_REPOSITORY");
+        if (repo == null || repo.isEmpty()) {
+            throw new IllegalArgumentException("환경 변수 'GITHUB_REPOSITORY'가 설정되지 않았거나 비어 있습니다.");
+        }
         this.token = System.getenv("GITHUB_TOKEN");
+        if (this.token == null || this.token.isEmpty()) {
+            throw new IllegalArgumentException("환경 변수 'GITHUB_TOKEN'이 설정되지 않았거나 비어 있습니다.");
+        }
     }
 
     @Override
@@ -50,13 +57,21 @@ public class GitHubNewsPublisher extends AbstractHttpClient implements NewsPubli
                 .build();
 
         try {
-            httpClient.send(
+            HttpResponse<String> response = httpClient.send(
                     request,
                     HttpResponse.BodyHandlers.ofString()
             );
-
+            System.out.println("GitHub API Response Status Code: " + response.statusCode());
+            if (response.statusCode() != 201) {
+                System.err.println("이슈 생성 실패! HTTP 상태 코드: " + response.statusCode());
+                System.err.println("응답 본문: " + response.body());
+                throw new RuntimeException("GitHub API returned status code " + response.statusCode() + " instead of 201 Created.");
+            } else {
+                System.out.println("이슈 생성 성공!");
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }

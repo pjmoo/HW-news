@@ -28,10 +28,26 @@ public class NaverNewsProvider extends AbstractHttpClient implements NewsProvide
         super(NEWS_API_URL);
         this.clientId = System.getenv("NAVER_CLIENT_ID");
         this.clientSecret = System.getenv("NAVER_CLIENT_SECRET");
-        this.category = NewsCategory.valueOf(System.getenv("NEWS_CATEGORY"));
-        // SIM, DATE -> 변환 (Enum - NewsCategory.SIM, NewsCategory.DATE)
-        System.out.println("clientId = " + clientId.substring(0, 3) + "...");
-        System.out.println("clientSecret = " + clientSecret.substring(0, 3) + "...");
+        
+        if (this.clientId == null || this.clientId.isEmpty()) {
+            throw new IllegalArgumentException("환경 변수 'NAVER_CLIENT_ID'가 설정되지 않았거나 비어 있습니다.");
+        }
+        if (this.clientSecret == null || this.clientSecret.isEmpty()) {
+            throw new IllegalArgumentException("환경 변수 'NAVER_CLIENT_SECRET'가 설정되지 않았거나 비어 있습니다.");
+        }
+
+        String categoryEnv = System.getenv("NEWS_CATEGORY");
+        if (categoryEnv == null || categoryEnv.isEmpty()) {
+            throw new IllegalArgumentException("환경 변수 'NEWS_CATEGORY'가 설정되지 않았거나 비어 있습니다.");
+        }
+        try {
+            this.category = NewsCategory.valueOf(categoryEnv);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("NEWS_CATEGORY 값은 'SIM' 또는 'DATE'여야 합니다. 현재 값: " + categoryEnv);
+        }
+
+        System.out.println("clientId = " + (clientId.length() >= 3 ? clientId.substring(0, 3) + "..." : clientId));
+        System.out.println("clientSecret = " + (clientSecret.length() >= 3 ? clientSecret.substring(0, 3) + "..." : clientSecret));
         System.out.println("category = " + category);
     }
 

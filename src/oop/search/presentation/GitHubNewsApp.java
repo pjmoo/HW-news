@@ -14,7 +14,22 @@ public class GitHubNewsApp {
     public void run() {
         String keyword = System.getenv("NEWS_QUERY");
         String limit = System.getenv("NEWS_DISPLAY");
-        newsService.search(keyword, Integer.parseInt(limit));
+
+        if (keyword == null || keyword.isEmpty()) {
+            throw new IllegalArgumentException("환경 변수 'NEWS_QUERY'가 설정되지 않았거나 비어 있습니다.");
+        }
+        if (limit == null || limit.isEmpty()) {
+            throw new IllegalArgumentException("환경 변수 'NEWS_DISPLAY'가 설정되지 않았거나 비어 있습니다.");
+        }
+
+        int limitInt;
+        try {
+            limitInt = Integer.parseInt(limit);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("NEWS_DISPLAY 값은 숫자여야 합니다. 현재 값: " + limit);
+        }
+
+        newsService.search(keyword, limitInt);
     }
 
     public static void main(String[] args) {
