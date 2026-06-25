@@ -48,14 +48,19 @@ jobs:
           echo "컴파일 완료: 클래스 ${class_count}개"
 
       - name: 뉴스 이슈 생성
-        #        run: |
-        #          echo "뉴스 수집 및 이슈 생성 시작..."
-        #          java -cp out oop.scraper.presentation.GitHubNewsApp
-        #          echo "이슈 생성 작업 종료"
         run: |
           echo "뉴스 수집 및 이슈 생성 시작..."
-                java -cp out oop.search.presentation.GitHubNewsApp
-                echo "이슈 생성 작업 종료"
+          if ! java -cp out oop.search.presentation.GitHubNewsApp 2> error.log; then
+            echo "=== JAVA RUNTIME ERROR ==="
+            cat error.log
+            # error.log 내용을 gh CLI를 사용해 이슈로 등록
+            gh issue create --title "GitHub Actions 실행 에러 로그" --body "Java 실행 중 에러가 발생했습니다. 아래는 에러 로그입니다:
+            \`\`\`
+            $(cat error.log)
+            \`\`\`"
+            exit 1
+          fi
+          echo "이슈 생성 작업 종료"
         env:
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
