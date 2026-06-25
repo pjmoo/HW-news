@@ -33,17 +33,28 @@ public class GitHubNewsPublisher extends AbstractHttpClient implements NewsPubli
 
     @Override
     public void publish(String topic, List<NewsResult> newsResults) {
-//        httpClient
         String url = endpoint;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("# 📰 ").append(topic).append(" 뉴스 검색 결과\n\n");
+        for (NewsResult result : newsResults) {
+            sb.append("### [").append(result.title()).append("](").append(result.url()).append(")\n");
+            sb.append("- **요약**: ").append(result.description()).append("\n");
+            sb.append("- **발행일**: ").append(result.pubDate()).append("\n\n");
+            sb.append("---\n\n");
+        }
+        String markdownBody = sb.toString();
+
+        String title = "%s (%s)".formatted(topic, ZonedDateTime.now(ZoneId.of("Asia/Seoul")));
+
         String payload = """
                 {
                 "title": "%s",
                 "body": "%s"
                 }
                 """.formatted(
-                // %s -> topic. %s -> 한국기준 현재 시간
-                "%s (%s)".formatted(topic, ZonedDateTime.now(ZoneId.of("Asia/Seoul"))),
-                newsResults
+                escapeJson(title),
+                escapeJson(markdownBody)
         ).trim();
         HttpRequest request = HttpRequest.newBuilder()
 //                .GET()
@@ -73,5 +84,46 @@ public class GitHubNewsPublisher extends AbstractHttpClient implements NewsPubli
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            char ch = value.charAt(i);
+            switch (ch) {
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '\b':
+                    sb.append("\\b");
+                    break;
+                case '\f':
+                    sb.append("\\f");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                default:
+                    if (ch < ' ') {
+                        String t = "000" + Integer.toHexString(ch);
+                        sb.append("\\u").append(t.substring(t.length() - 4));
+                    } else {
+                        sb.append(ch);
+                    }
+            }
+        }
+        return sb.toString();
     }
 }

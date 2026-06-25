@@ -84,11 +84,11 @@ public class NaverNewsProvider extends AbstractHttpClient implements NewsProvide
 //                String title = item
 //                        .split("\"title\":\"")[1] // 0 <-> 1 -> ["title":"]
 //                        .split("\",")[0]; // ",
-                String title = cutText(item, "\"title\":\"", "\",\n");
-                String link = cutText(item, "\"link\":\"", "\",\n");
-                String description = cutText(item, "\"description\":\"", "\",\n");
+                String title = cleanText(cutText(item, "\"title\":\"", "\",\n"));
+                String link = cleanText(cutText(item, "\"link\":\"", "\",\n"));
+                String description = cleanText(cutText(item, "\"description\":\"", "\",\n"));
                 // pubDate는 문자열 ""가 추가적으로 들어갈 염려가 없기 때문에 바로 "로 구분
-                String pubDate = cutText(item, "\"description\":\"", "\"");
+                String pubDate = cleanText(cutText(item, "\"pubDate\":\"", "\""));
                 NewsResult result = new NewsResult(title, description, link, pubDate);
                 results.add(result);
             }
@@ -105,6 +105,20 @@ public class NaverNewsProvider extends AbstractHttpClient implements NewsProvide
         return original
                 .split(prefix)[1]
                 .split(suffix)[0];
+    }
+
+    private String cleanText(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text
+                .replaceAll("<[^>]*>", "") // HTML 태그 제거
+                .replace("\\/", "/") // 이스케이프된 슬래시 제거
+                .replace("&quot;", "\"")
+                .replace("&apos;", "'")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&amp;", "&");
     }
 
     public static void main(String[] args) {
