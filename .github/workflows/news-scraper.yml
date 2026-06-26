@@ -1,4 +1,4 @@
-name: 네이버 뉴스 스크래퍼
+name: 뉴스 스크래퍼
 
 on:
   schedule:
