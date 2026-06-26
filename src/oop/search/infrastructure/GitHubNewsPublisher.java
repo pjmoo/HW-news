@@ -9,6 +9,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class GitHubNewsPublisher extends AbstractHttpClient implements NewsPublisher {
@@ -47,7 +48,9 @@ public class GitHubNewsPublisher extends AbstractHttpClient implements NewsPubli
         }
         String markdownBody = sb.toString();
 
-        String title = "%s (%s)".formatted(topic, ZonedDateTime.now(ZoneId.of("Asia/Seoul")));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String formattedTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).format(formatter);
+        String title = "%s (%s)".formatted(topic, formattedTime);
 
         String payload = """
                 {
