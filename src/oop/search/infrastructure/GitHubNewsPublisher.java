@@ -19,13 +19,15 @@ public class GitHubNewsPublisher extends AbstractHttpClient implements NewsPubli
 
     public GitHubNewsPublisher() {
         super(GITHUB_API_URL
-                .formatted(System.getenv("GITHUB_REPOSITORY"))
+                .formatted(System.getenv("GITHUB_REPOSITORY") != null ? System.getenv("GITHUB_REPOSITORY").trim() : "")
         );
-        String repo = System.getenv("GITHUB_REPOSITORY");
+        String rawRepo = System.getenv("GITHUB_REPOSITORY");
+        String repo = rawRepo != null ? rawRepo.trim() : null;
         if (repo == null || repo.isEmpty()) {
             throw new IllegalArgumentException("환경 변수 'GITHUB_REPOSITORY'가 설정되지 않았거나 비어 있습니다.");
         }
-        this.token = System.getenv("GITHUB_TOKEN");
+        String rawToken = System.getenv("GITHUB_TOKEN");
+        this.token = rawToken != null ? rawToken.trim() : null;
         if (this.token == null || this.token.isEmpty()) {
             throw new IllegalArgumentException("환경 변수 'GITHUB_TOKEN'이 설정되지 않았거나 비어 있습니다.");
         }

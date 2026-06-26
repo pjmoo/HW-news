@@ -12,8 +12,10 @@ public class GitHubNewsApp {
     }
 
     public void run() {
-        String keyword = System.getenv("NEWS_QUERY");
-        String limit = System.getenv("NEWS_DISPLAY");
+        String rawKeyword = System.getenv("NEWS_QUERY");
+        String rawLimit = System.getenv("NEWS_DISPLAY");
+        String keyword = rawKeyword != null ? rawKeyword.trim() : null;
+        String limit = rawLimit != null ? rawLimit.trim() : null;
 
         if (keyword == null || keyword.isEmpty()) {
             throw new IllegalArgumentException("환경 변수 'NEWS_QUERY'가 설정되지 않았거나 비어 있습니다.");

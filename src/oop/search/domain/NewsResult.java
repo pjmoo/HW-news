@@ -17,7 +17,7 @@ public record NewsResult(
     public static void main(String[] args) {
         NewsResult result = new NewsResult("환율 1600원 되나?", "현재 1550원 간당간당하고 혹시 달러로 구독중이면 조심하세요", "https://naver.com", "2026.12.32");
         System.out.println("result = " + result);
-        System.out.println("result.title = " + result.title);
+        System.out.println("result.title = " + result.title());
 //        result.title = "2000원 되나?"; // 막혀있다
     }
 }
